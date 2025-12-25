@@ -49,7 +49,4 @@ class MainMenu(arcade.View):
         
     def on_draw(self):
         self.clear()
-        self.manager.draw()  # Рисуй GUI поверх всего
-
-    def on_mouse_press(self, x, y, button, modifiers):
-        pass  # Для кликов, но manager сам обрабатывает
+        self.manager.draw()
