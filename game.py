@@ -1,7 +1,6 @@
 import arcade
 import pause_menu
-from arcade.gui import UIManager, UITextureButton
-from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout 
+
 
 class Player(arcade.Sprite):
     def __init__(self, x=50.75, y=1):

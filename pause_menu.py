@@ -1,5 +1,6 @@
 import arcade
 import main_menu
+import game
 from arcade.gui import UIManager, UITextureButton
 from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout 
 
@@ -49,3 +50,8 @@ class PauseMenu(arcade.View):
     def on_draw(self):
         self.clear()
         self.manager.draw()
+
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.ESCAPE:
+            game_view = game.Game()
+            self.window.show_view(game_view)

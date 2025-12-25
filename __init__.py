@@ -7,5 +7,6 @@ import main_menu
 
 window = arcade.Window(800, 600, "py-valley")
 menu_view = main_menu.MainMenu()
-window.show_view(menu_view)
-arcade.run()
+if __name__ == "__main__":
+    window.show_view(menu_view)
+    arcade.run()
