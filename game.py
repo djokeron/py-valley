@@ -81,30 +81,57 @@ class Player(arcade.Sprite):
 class Game(arcade.View):
     def __init__(self):
         super().__init__()
-        player = Player(x=self.center_x, y=self.center_y)
+        player = Player(x=832, y=448)
         self.player_list = arcade.SpriteList()
         self.player_list.append(player)
         self.pressed_keys = set()
-        
+        self.world_camera = arcade.camera.Camera2D()
+        self.gui_camera = arcade.camera.Camera2D()
+        self.world_width = 800
+        self.world_height = 600
+        self.location1 = "map1.tmx"
+        self.loc_map1 = arcade.load_tilemap(self.location1, scaling=1)
+        self.wall_list = self.loc_map1.sprite_lists["hat"]
+        self.wall_list2 = self.loc_map1.sprite_lists["zab2"]
+        self.collision_list = self.loc_map1.sprite_lists["coll"]
+        self.ground_list = self.loc_map1.sprite_lists["ground"]
+        self.physics_engine = arcade.PhysicsEngineSimple(
+            self.player_list[0], self.collision_list
+        )
+   
     def on_draw(self):
         self.clear()
+        self.world_camera.use()
+        self.ground_list.draw()
+        self.wall_list2.draw()
+        self.wall_list.draw()
         self.player_list.draw()
 
     def on_update(self, delta_time):
         self.player_list[0].change_x = 0
         self.player_list[0].change_y = 0
-
+        
         if arcade.key.UP in self.pressed_keys or arcade.key.W in self.pressed_keys:
-            self.player_list[0].change_y = 200
+            self.player_list[0].change_y = 200 * delta_time
         elif arcade.key.DOWN in self.pressed_keys or arcade.key.S in self.pressed_keys:
-            self.player_list[0].change_y = -200
+            self.player_list[0].change_y = -200 * delta_time
 
         if arcade.key.RIGHT in self.pressed_keys or arcade.key.D in self.pressed_keys:
-            self.player_list[0].change_x = 200
+            self.player_list[0].change_x = 200 * delta_time
         elif arcade.key.LEFT in self.pressed_keys or arcade.key.A in self.pressed_keys:
-            self.player_list[0].change_x = -200
-
+            self.player_list[0].change_x = -200 * delta_time
+        
         self.player_list[0].update(delta_time)
+        self.physics_engine.update()
+        position = (
+            self.player_list[0].center_x,
+            self.player_list[0].center_y
+        )
+        self.world_camera.position = arcade.math.lerp_2d(
+            self.world_camera.position,
+            position,
+            0.14,
+        )
         
             
     def on_key_press(self, key, modifiers):
