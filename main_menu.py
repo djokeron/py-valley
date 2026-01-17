@@ -1,7 +1,10 @@
 import arcade
 import game
+from load_menu import LoadMenu
+from settings_menu import SettingsMenu
 from arcade.gui import UIManager, UITextureButton
 from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout 
+data = "Data/"
 
 
 class MainMenu(arcade.View):
@@ -20,23 +23,23 @@ class MainMenu(arcade.View):
         self.manager.add(self.anchor_layout) 
 
     def setup_widgets(self):
-        NewGame_normal = arcade.load_texture("Images/Buttons/NewGameNormal.png")
-        NewGame_hovered = arcade.load_texture("Images/Buttons/NewGame_Hovered.png")
-        NewGame_pressed = arcade.load_texture("Images/Buttons/NewGame.png")
+        NewGame_normal = arcade.load_texture(f"{data}Images/Buttons/NewGameNormal.png")
+        NewGame_hovered = arcade.load_texture(f"{data}Images/Buttons/NewGame_Hovered.png")
+        NewGame_pressed = arcade.load_texture(f"{data}Images/Buttons/NewGame.png")
         NewGame_button = UITextureButton(texture=NewGame_normal, 
                                          texture_hovered=NewGame_hovered,
                                          texture_pressed=NewGame_pressed,
                                          scale=1.0,)
-        Load_normal = arcade.load_texture("Images/Buttons/Load_Normal.png")
-        Load_hovered = arcade.load_texture("Images/Buttons/Load_Hovered.png")
-        Load_pressed = arcade.load_texture("Images/Buttons/Load.png")
+        Load_normal = arcade.load_texture(f"{data}Images/Buttons/Load_Normal.png")
+        Load_hovered = arcade.load_texture(f"{data}Images/Buttons/Load_Hovered.png")
+        Load_pressed = arcade.load_texture(f"{data}Images/Buttons/Load.png")
         Load_button = UITextureButton(texture=Load_normal, 
                                       texture_hovered=Load_hovered,
                                       texture_pressed=Load_pressed,
                                       scale=1.0,)
-        Settings_normal = arcade.load_texture("Images/Buttons/Settings_Normal.png")
-        Settings_hovered = arcade.load_texture("Images/Buttons/Settings_Hovered.png")
-        Settings_pressed = arcade.load_texture("Images/Buttons/Settings.png")
+        Settings_normal = arcade.load_texture(f"{data}Images/Buttons/Settings_Normal.png")
+        Settings_hovered = arcade.load_texture(f"{data}Images/Buttons/Settings_Hovered.png")
+        Settings_pressed = arcade.load_texture(f"{data}Images/Buttons/Settings.png")
         Settings_button = UITextureButton(texture=Settings_normal, 
                                           texture_hovered=Settings_hovered,
                                           texture_pressed=Settings_pressed,
@@ -45,7 +48,13 @@ class MainMenu(arcade.View):
         self.box_layout.add(Load_button)
         self.box_layout.add(Settings_button)
         
-        NewGame_button.on_click = lambda x: self.window.show_view(game.Game())
+        def to_scene(view):
+            self.manager.disable()
+            self.window.show_view(view)
+        
+        NewGame_button.on_click = lambda x: to_scene(game.Game())
+        Load_button.on_click = lambda x: to_scene(LoadMenu(None, "main"))
+        Settings_button.on_click = lambda x: to_scene(SettingsMenu())
         
     def on_draw(self):
         self.clear()

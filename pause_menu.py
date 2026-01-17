@@ -1,12 +1,13 @@
 import arcade
 import main_menu
-import game
+from load_menu import LoadMenu
+from save_menu import SaveMenu
 from arcade.gui import UIManager, UITextureButton
 from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout 
-
+data = "Data/"
 
 class PauseMenu(arcade.View):
-    def __init__(self):
+    def __init__(self, game_state):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
         
@@ -17,27 +18,29 @@ class PauseMenu(arcade.View):
         self.box_layout = UIBoxLayout(vertical=True, space_between=10)
         self.setup_widgets()
         
+        self.game_state = game_state
+        
         self.anchor_layout.add(self.box_layout)
         self.manager.add(self.anchor_layout) 
 
     def setup_widgets(self):
-        MainMenu_normal = arcade.load_texture("Images/Buttons/MainMenu_Normal.png")
-        MainMenu_hovered = arcade.load_texture("Images/Buttons/MainMenu_Hovered.png")
-        MainMenu_pressed = arcade.load_texture("Images/Buttons/MainMenu.png")
+        MainMenu_normal = arcade.load_texture(f"{data}Images/Buttons/MainMenu_Normal.png")
+        MainMenu_hovered = arcade.load_texture(f"{data}Images/Buttons/MainMenu_Hovered.png")
+        MainMenu_pressed = arcade.load_texture(f"{data}Images/Buttons/MainMenu.png")
         MainMenu_button = UITextureButton(texture=MainMenu_normal, 
                                          texture_hovered=MainMenu_hovered,
                                          texture_pressed=MainMenu_pressed,
                                          scale=1.0,)
-        Save_normal = arcade.load_texture("Images/Buttons/Save_Normal.png")
-        Save_hovered = arcade.load_texture("Images/Buttons/Save_Hovered.png")
-        Save_pressed = arcade.load_texture("Images/Buttons/Save.png")
+        Save_normal = arcade.load_texture(f"{data}Images/Buttons/Save_Normal.png")
+        Save_hovered = arcade.load_texture(f"{data}Images/Buttons/Save_Hovered.png")
+        Save_pressed = arcade.load_texture(f"{data}Images/Buttons/Save.png")
         Save_button = UITextureButton(texture=Save_normal, 
                                       texture_hovered=Save_hovered,
                                       texture_pressed=Save_pressed,
                                       scale=1.0,)
-        Load_normal = arcade.load_texture("Images/Buttons/Load_Normal.png")
-        Load_hovered = arcade.load_texture("Images/Buttons/Load_Hovered.png")
-        Load_pressed = arcade.load_texture("Images/Buttons/Load.png")
+        Load_normal = arcade.load_texture(f"{data}Images/Buttons/Load_Normal.png")
+        Load_hovered = arcade.load_texture(f"{data}Images/Buttons/Load_Hovered.png")
+        Load_pressed = arcade.load_texture(f"{data}Images/Buttons/Load.png")
         Load_button = UITextureButton(texture=Load_normal, 
                                       texture_hovered=Load_hovered,
                                       texture_pressed=Load_pressed,
@@ -45,7 +48,13 @@ class PauseMenu(arcade.View):
         self.box_layout.add(MainMenu_button)
         self.box_layout.add(Save_button)
         self.box_layout.add(Load_button)
-        MainMenu_button.on_click = lambda x: self.window.show_view(main_menu.MainMenu())
+        def to_scene(view):
+            self.manager.disable()
+            self.window.show_view(view)
+            
+        MainMenu_button.on_click = lambda x: to_scene(main_menu.MainMenu())
+        Load_button.on_click = lambda event: to_scene(LoadMenu(self.game_state, "pause"))
+        Save_button.on_click = lambda event: to_scene(SaveMenu(self.game_state))
         
     def on_draw(self):
         self.clear()
@@ -53,5 +62,5 @@ class PauseMenu(arcade.View):
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE:
-            game_view = game.Game()
-            self.window.show_view(game_view)
+            self.manager.disable()
+            self.window.show_view(self.game_state)
