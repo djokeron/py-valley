@@ -8,7 +8,7 @@ data = "Data/"
 
 
 class MainMenu(arcade.View):
-    def __init__(self):
+    def __init__(self, volume):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
         
@@ -20,7 +20,9 @@ class MainMenu(arcade.View):
         self.setup_widgets()
         
         self.anchor_layout.add(self.box_layout)
-        self.manager.add(self.anchor_layout) 
+        self.manager.add(self.anchor_layout)
+        
+        self.volume = volume
 
     def setup_widgets(self):
         NewGame_normal = arcade.load_texture(f"{data}Images/Buttons/NewGameNormal.png")
@@ -52,9 +54,9 @@ class MainMenu(arcade.View):
             self.manager.disable()
             self.window.show_view(view)
         
-        NewGame_button.on_click = lambda x: to_scene(game.Game())
-        Load_button.on_click = lambda x: to_scene(LoadMenu(None, "main"))
-        Settings_button.on_click = lambda x: to_scene(SettingsMenu())
+        NewGame_button.on_click = lambda event: to_scene(game.Game(volume=self.volume))
+        Load_button.on_click = lambda event: to_scene(LoadMenu(None, "main"))
+        Settings_button.on_click = lambda event: to_scene(SettingsMenu(self.volume))
         
     def on_draw(self):
         self.clear()

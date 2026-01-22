@@ -7,7 +7,7 @@ from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout
 data = "Data/"
 
 class PauseMenu(arcade.View):
-    def __init__(self, game_state):
+    def __init__(self, game_state, volume):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
         
@@ -22,6 +22,8 @@ class PauseMenu(arcade.View):
         
         self.anchor_layout.add(self.box_layout)
         self.manager.add(self.anchor_layout) 
+        
+        self.volume = volume
 
     def setup_widgets(self):
         MainMenu_normal = arcade.load_texture(f"{data}Images/Buttons/MainMenu_Normal.png")
@@ -52,9 +54,9 @@ class PauseMenu(arcade.View):
             self.manager.disable()
             self.window.show_view(view)
             
-        MainMenu_button.on_click = lambda x: to_scene(main_menu.MainMenu())
-        Load_button.on_click = lambda event: to_scene(LoadMenu(self.game_state, "pause"))
-        Save_button.on_click = lambda event: to_scene(SaveMenu(self.game_state))
+        MainMenu_button.on_click = lambda event: to_scene(main_menu.MainMenu(self.volume))
+        Load_button.on_click = lambda event: to_scene(LoadMenu(self.game_state, "pause", self.volume))
+        Save_button.on_click = lambda event: to_scene(SaveMenu(self.game_state, self.volume))
         
     def on_draw(self):
         self.clear()

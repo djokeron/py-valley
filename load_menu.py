@@ -7,7 +7,7 @@ from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout
 data = "Data/"
 
 class LoadMenu(arcade.View):
-    def __init__(self, game_state, back_menu):
+    def __init__(self, game_state, back_menu, volume):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
         
@@ -21,6 +21,7 @@ class LoadMenu(arcade.View):
         self.game_state = game_state
         self.loaded_data = ()
         self.back_menu = back_menu
+        self.volume = volume
         
         self.anchor_layout.add(self.box_layout)
         self.manager.add(self.anchor_layout) 
@@ -96,7 +97,7 @@ class LoadMenu(arcade.View):
             from main_menu import MainMenu
             self.manager.disable()
             if self.back_menu == "main":
-                self.window.show_view(MainMenu())
+                self.window.show_view(MainMenu(self.volume))
             else:
                 from pause_menu import PauseMenu
-                self.window.show_view(PauseMenu(self.game_state))
+                self.window.show_view(PauseMenu(self.game_state, self.volume))

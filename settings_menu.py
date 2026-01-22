@@ -1,6 +1,5 @@
 import arcade
 import json
-import sys
 import main_menu
 from arcade.gui import UIManager, UISlider, UILabel
 from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout 
@@ -8,7 +7,7 @@ data = "Data/"
 
 
 class SettingsMenu(arcade.View):
-    def __init__(self):
+    def __init__(self, volume):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
         
@@ -23,6 +22,8 @@ class SettingsMenu(arcade.View):
         
         self.anchor_layout.add(self.box_layout)
         self.manager.add(self.anchor_layout) 
+        
+        self.volume = volume
 
     def setup_widgets(self):
         Volume_label = UILabel(text="Звук", 
@@ -32,8 +33,14 @@ class SettingsMenu(arcade.View):
                     align="center") 
         Sound_slider = UISlider(width=200, height=20, min_value=0, max_value=100, value=100)
         self.box_layout.add(Volume_label) 
-        self.box_layout.add(Sound_slider) 
+        self.box_layout.add(Sound_slider)
+        Sound_slider.on_change = lambda event: self.change_volume(Sound_slider.value)
     
+    def change_volume(self, value):
+        self.volume = value / 100
+        with open(f"{data}settings.json", "w") as settings:
+            json.dump(self.volume, settings)
+             
     def on_draw(self):
         self.clear()
         self.manager.draw()
@@ -41,4 +48,4 @@ class SettingsMenu(arcade.View):
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE:
             self.manager.disable()
-            self.window.show_view(main_menu.MainMenu())
+            self.window.show_view(main_menu.MainMenu(self.volume))

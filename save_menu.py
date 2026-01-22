@@ -6,7 +6,7 @@ from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout
 data = "Data/"
 
 class SaveMenu(arcade.View):
-    def __init__(self, game_state):
+    def __init__(self, game_state, volume):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
         
@@ -18,6 +18,7 @@ class SaveMenu(arcade.View):
         self.setup_widgets()
         
         self.game = game_state
+        self.volume = volume
         
         self.anchor_layout.add(self.box_layout)
         self.manager.add(self.anchor_layout) 
@@ -87,4 +88,4 @@ class SaveMenu(arcade.View):
         if key == arcade.key.ESCAPE:
             from pause_menu import PauseMenu
             self.manager.disable()
-            self.window.show_view(PauseMenu(self.game))
+            self.window.show_view(PauseMenu(self.game, self.volume))
