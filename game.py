@@ -11,14 +11,14 @@ step_sound_1 = arcade.load_sound(f"{data}Sounds/step_1.mp3")
 step_sound_2 = arcade.load_sound(f"{data}Sounds/step_2.mp3")
 
 class Player(arcade.Sprite):
-    def __init__(self, x=50.75, y=1, volume=1):
+    def __init__(self, x=50.75, y=1, volume=1, speed=200):
         super().__init__(center_x=x, center_y=y, scale=1.5)
         self.stand_texture = arcade.load_texture(f"{data}images/Player/Player_stand.png")
         self.texture = self.stand_texture
         
         self.volume = volume
         
-        self.walk_speed = 200
+        self.walk_speed = speed
         self.walk_frame_index = 0         
         self.walk_timer = 0           
         self.facing_direction = "front"
@@ -191,11 +191,11 @@ class Game(arcade.View):
             
         self.wall_list.draw()
         
+        self.wall_list3.draw()
+        
         self.player_list.draw()
         
         self.wall_list2.draw()
-        
-        self.wall_list3.draw()
         
         self.gui_camera.use()
         
@@ -335,3 +335,144 @@ class Game(arcade.View):
         if self.current_song:
             arcade.stop_sound(self.current_song)
             self.current_song = None
+
+
+class Tutorial(Game):
+    def __init__(self, volume, menu):
+        super().__init__(volume=volume)
+        
+        player = Player(x=256, y=1024, volume=self.volume, speed=2000)
+        self.player_list = arcade.SpriteList()
+        self.player_list.append(player)
+        
+        self.location1 = f"{data}Map/tutorial.tmx"
+        self.loc_map1 = arcade.load_tilemap(self.location1, scaling=1)
+        self.wall_list = self.loc_map1.sprite_lists["zabor"] 
+        self.shop_list1 = self.loc_map1.sprite_lists["shop_1"]
+        self.shop_list2 = self.loc_map1.sprite_lists["shop_2"]
+        self.wall_list2 = self.loc_map1.sprite_lists["zab2"]
+
+        self.collision_list = self.loc_map1.sprite_lists["coll"]
+        self.ground_list = self.loc_map1.sprite_lists["ground"]
+        
+        self.upgrade = 1.25
+
+        self.game_globaltime = 0
+        
+        self.game_hours = 9   
+        self.game_minutes = 0
+        self.game_seconds = 0.0 
+        
+        # Ускорение времени: 60x (1 реальная секунда = 1 игровая минута)
+        self.time_speedup = 60.0
+        
+        self.list_of_grads = []
+        for i in range(1, 9):
+            listi = []
+            for layer_name, sprite_list in self.loc_map1.sprite_lists.items():
+                if f"grad_{i}" in layer_name:
+                    listi.append((layer_name, sprite_list))
+            if listi:
+                self.list_of_grads.append(Grad(listi))    
+        
+        self.shop_1 = Shop(False, True, 1, (item.carrot, item.hren, item.ginger, item.beet, item.potato, item.tomato, item.cucumber), self.loc_map1.sprite_lists["shop_point_1"]) 
+        self.shop_2 = Shop(True, False, 1, (item.carrot_seed, item.hren_seed, item.ginger_seed, item.beet_seed, item.potato, item.tomato_seed, item.cucumber_seed), self.loc_map1.sprite_lists["shop_point_2"]) 
+        self.shop_3 = Upgrader(self.upgrade, self.loc_map1.sprite_lists["shop_point_3"])
+        
+        self.hint_text = arcade.Text(f"""Подсказка""",
+            x= self.window.width - 200,
+            y = self.window.height - 30,
+            color=arcade.color.WHITE,
+            font_size=20,
+            bold=True,
+            width=200,
+            multiline=True,
+            batch=self.batch)
+        
+        self.physics_engine = arcade.PhysicsEngineSimple(
+            self.player_list[0], self.collision_list
+        )
+        
+    def on_draw(self):
+        self.clear()
+        self.world_camera.use()
+        
+        self.ground_list.draw()
+        
+        for grad in self.list_of_grads:
+            grad.draw()
+            
+        self.wall_list.draw()
+        
+        self.wall_list2.draw()
+        
+        self.shop_list2.draw
+        
+        self.player_list.draw()
+        
+        self.shop_list1.draw()
+        
+        self.gui_camera.use()
+        
+        self.batch.draw()
+        
+        self.inventory_draw.draw()
+        self.inventory.draw_items()
+        
+    def on_update(self, delta_time):
+        super().on_update(delta_time)
+        
+        for grad in self.list_of_grads:
+            grad.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime, self.volume)
+            grad.update_growth(delta_time=delta_time, inventory=self.inventory, upgrade=self.upgrade, volume=self.volume)
+        
+        self.shop_1.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime)    
+        self.shop_2.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime)
+        self.shop_3.update(self.player_list[0], self.inventory, self.pressed_keys)
+        
+        for tile in self.loc_map1.sprite_lists["text_1"]:
+            if arcade.check_for_collision(self.player_list[0], tile):
+                self.hint_text.text = """Подсказка:\nХодьба на WASD или стрелки\nПоменять выбранный предмет в инвентаре\nна цыфры 1-9"""
+    
+        for tile in self.loc_map1.sprite_lists["text_2"]:
+            if arcade.check_for_collision(self.player_list[0], tile):
+                self.hint_text.text = """Подсказка:\nВыбери семена,\nВстань на грядку\nи два раза нажми E\nЧтобы полить нажми R\nДля большей информации нажми E или R вне грядки"""
+                if arcade.key.E in self.pressed_keys:
+                    self.hint_text.text = """Подсказка:\nЧто бы морковка вырасла придётся подождать 3 внутриигровых часа полив уменьшает количество времяни"""
+                if arcade.key.R in self.pressed_keys:
+                    self.hint_text.text = """Подсказка:\nМожно сажать только семена и картошку.\nУ каждого растения разное время выращивания"""
+                
+        for tile in self.loc_map1.sprite_lists["text_3"]:
+            if arcade.check_for_collision(self.player_list[0], tile):
+                self.hint_text.text = """Подсказка:\nВ Магазинах можно\nпокупать или продавать тебе предметы\nподойди к одному из магазинов для большей информации\nИли нажми на E для ещё информации"""
+                if arcade.key.E in self.pressed_keys:
+                    self.hint_text.text = """Подсказка:\nЧтобы отдать цену или предмет нужно переключить инвентарь на ячейку с этим предметом"""
+                
+        for tile in self.loc_map1.sprite_lists["text_3_1"]:
+            if arcade.check_for_collision(self.player_list[0], tile):
+                self.hint_text.text = """Подсказка:\nЭтот магазин покупает у тебя овощи на кнопках с E до O на клвиатуре, ты продаёшь разные овощи, Семена(Кроме картошки) продавать нельзя"""
+                if arcade.key.E in self.pressed_keys:
+                        self.hint_text.text = """Подсказка:\nЗа продажу ты получаешь монеты, их можно потратить на улучшение полива и на семена"""
+               
+        for tile in self.loc_map1.sprite_lists["text_3_2"]:
+            if arcade.check_for_collision(self.player_list[0], tile):
+                self.hint_text.text = """Подсказка:\nЭтот магазин улучшает твой полив за монеты, с каждым улучшением цена возрастает"""
+                
+        for tile in self.loc_map1.sprite_lists["text_3_3"]:
+            if arcade.check_for_collision(self.player_list[0], tile):
+                self.hint_text.text = """Подсказка:\nЭтот магазин продаёт тебе семена с кнопки Е до O на клавиатуре продаёт тебе разные семена и картошку""" 
+        
+        for tile in self.loc_map1.sprite_lists["text_4"]:
+            if arcade.check_for_collision(self.player_list[0], tile):
+                self.hint_text.text = """Подсказка:\nНа кнопку ESC выходи""" 
+                
+               
+    def on_key_press(self, key, modifiers):  
+        if key == arcade.key.ESCAPE:
+            self.window.show_view(self)
+        if key not in self.pressed_keys:
+            self.pressed_keys.add(key)
+    
+    def on_key_release(self, key, modifiers):
+        if key in self.pressed_keys:
+            self.pressed_keys.remove(key)

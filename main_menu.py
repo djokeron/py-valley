@@ -32,6 +32,7 @@ class MainMenu(arcade.View):
                                          texture_hovered=NewGame_hovered,
                                          texture_pressed=NewGame_pressed,
                                          scale=1.0,)
+        
         Load_normal = arcade.load_texture(f"{data}Images/Buttons/Load_Normal.png")
         Load_hovered = arcade.load_texture(f"{data}Images/Buttons/Load_Hovered.png")
         Load_pressed = arcade.load_texture(f"{data}Images/Buttons/Load.png")
@@ -39,6 +40,7 @@ class MainMenu(arcade.View):
                                       texture_hovered=Load_hovered,
                                       texture_pressed=Load_pressed,
                                       scale=1.0,)
+        
         Settings_normal = arcade.load_texture(f"{data}Images/Buttons/Settings_Normal.png")
         Settings_hovered = arcade.load_texture(f"{data}Images/Buttons/Settings_Hovered.png")
         Settings_pressed = arcade.load_texture(f"{data}Images/Buttons/Settings.png")
@@ -46,17 +48,24 @@ class MainMenu(arcade.View):
                                           texture_hovered=Settings_hovered,
                                           texture_pressed=Settings_pressed,
                                           scale=1.0,)
+        
+        Tutorial_button = UITextureButton(texture=NewGame_normal, 
+                                         texture_hovered=NewGame_hovered,
+                                         texture_pressed=NewGame_pressed,
+                                         scale=1.0,)
         self.box_layout.add(NewGame_button)
         self.box_layout.add(Load_button)
         self.box_layout.add(Settings_button)
+        self.box_layout.add(Tutorial_button)
         
         def to_scene(view):
             self.manager.disable()
             self.window.show_view(view)
         
         NewGame_button.on_click = lambda event: to_scene(game.Game(volume=self.volume))
-        Load_button.on_click = lambda event: to_scene(LoadMenu(None, "main"))
+        Load_button.on_click = lambda event: to_scene(LoadMenu(None, "main", volume=self.volume))
         Settings_button.on_click = lambda event: to_scene(SettingsMenu(self.volume))
+        Tutorial_button.on_click = lambda event: to_scene(game.Tutorial(volume=self.volume, menu=self))
         
     def on_draw(self):
         self.clear()
