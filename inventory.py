@@ -69,22 +69,22 @@ class Inventory(arcade.Sprite):
 
         
     def update(self, deltatime, keys):
-        if arcade.key.NUM_1 in keys:
+        if arcade.key.KEY_1 in keys:
             self.selected_item = 0
-        elif arcade.key.NUM_2 in keys:
+        elif arcade.key.KEY_2 in keys:
             self.selected_item = 1
-        elif arcade.key.NUM_3 in keys:
+        elif arcade.key.KEY_3 in keys:
             self.selected_item = 2
-        elif arcade.key.NUM_4 in keys:
+        elif arcade.key.KEY_4 in keys:
             self.selected_item = 3
-        elif arcade.key.NUM_5 in keys:
+        elif arcade.key.KEY_5 in keys:
             self.selected_item = 4
-        elif arcade.key.NUM_6 in keys:
+        elif arcade.key.KEY_6 in keys:
             self.selected_item = 5
-        elif arcade.key.NUM_7 in keys:
+        elif arcade.key.KEY_7 in keys:
             self.selected_item = 6
-        elif arcade.key.NUM_8 in keys:
+        elif arcade.key.KEY_8 in keys:
             self.selected_item = 7
-        elif arcade.key.NUM_9 in keys:
+        elif arcade.key.KEY_9 in keys:
             self.selected_item = 8
         self.texture = self.inventory_textures[self.selected_item]
