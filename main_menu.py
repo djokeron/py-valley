@@ -11,6 +11,7 @@ class MainMenu(arcade.View):
     def __init__(self, volume):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
+        self.volume = volume
         
         self.manager = UIManager()
         self.manager.enable()
@@ -21,8 +22,6 @@ class MainMenu(arcade.View):
         
         self.anchor_layout.add(self.box_layout)
         self.manager.add(self.anchor_layout)
-        
-        self.volume = volume
 
     def setup_widgets(self):
         NewGame_normal = arcade.load_texture(f"{data}Images/Buttons/NewGameNormal.png")
@@ -49,15 +48,19 @@ class MainMenu(arcade.View):
                                           texture_pressed=Settings_pressed,
                                           scale=1.0,)
         
-        Tutorial_button = UITextureButton(texture=NewGame_normal, 
-                                         texture_hovered=NewGame_hovered,
-                                         texture_pressed=NewGame_pressed,
+        Tutorial_normal = arcade.load_texture(f"{data}Images/Buttons/Tutr_Normal.png")
+        Tutorial_hovered = arcade.load_texture(f"{data}Images/Buttons/Tutr_Hovered.png")
+        Tutorial_pressed = arcade.load_texture(f"{data}Images/Buttons/Tutr_Pressed.png")
+        Tutorial_button = UITextureButton(texture=Tutorial_normal, 
+                                         texture_hovered=Tutorial_hovered,
+                                         texture_pressed=Tutorial_pressed,
                                          scale=1.0,)
+        
         self.box_layout.add(NewGame_button)
         self.box_layout.add(Load_button)
-        self.box_layout.add(Settings_button)
         self.box_layout.add(Tutorial_button)
-        
+        self.box_layout.add(Settings_button)
+
         def to_scene(view):
             self.manager.disable()
             self.window.show_view(view)

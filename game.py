@@ -98,12 +98,12 @@ class Player(arcade.Sprite):
 
 
 class Game(arcade.View):
-    def __init__(self, loaded_data=None, volume=1):
+    def __init__(self, loaded_data=None, volume=[1, 1, 1]):
         super().__init__()
         
         self.volume = volume
         
-        player = Player(x=896, y=832, volume=self.volume)
+        player = Player(x=896, y=832, volume=(self.volume[1] * self.volume[0]))
         self.player_list = arcade.SpriteList()
         self.player_list.append(player)
         
@@ -288,6 +288,32 @@ class Game(arcade.View):
             width=300,
             multiline=True,
             batch=self.batch)
+        
+        self.hint_text = arcade.Text(f"""""",
+            x=self.window.width - 200,
+            y=self.window.height - 30,
+            color=arcade.color.WHITE,
+            font_size=20,
+            bold=True,
+            width=200,
+            multiline=True,
+            batch=self.batch)
+            
+        for tile in self.loc_map1.sprite_lists["text_shop_1"]:
+            if arcade.check_for_collision(self.player_list[0], tile):
+                self.hint_text.text = """Продать:\nE: Морковь\nR: Хрен\nT: Имбирь\nY: Свеклу\nU: Картошку\nI: Помидор\nO: Огурец"""
+
+        
+        for tile in self.loc_map1.sprite_lists["text_shop_2"]:
+            if arcade.check_for_collision(self.player_list[0], tile):
+                self.hint_text.text = """Купить семена:\nE: Моркови, 1 мон.\nR: Хрена, 4 мон.\nT: Имбиря, 8 мон.\nY: Свеклы, 8 мон.\nU: Картошку, 6 мон.\nI: Помидоры, 32 мон.\nO: Огурца, 32 мон."""
+
+        
+        for tile in self.loc_map1.sprite_lists["text_shop_3"]:
+            if arcade.check_for_collision(self.player_list[0], tile):
+                self.hint_text.text = f"""Купить Улучшение:\nЦена: {self.shop_3.cost}\nЭффективность: {self.shop_3.upgrade + 0.25}"""
+
+                
 
     def on_key_press(self, key, modifiers):
         
@@ -328,7 +354,7 @@ class Game(arcade.View):
         """Вызывается, когда вид показывается (например, при переходе)"""
         # Загружаем и запускаем музыку
         self.background_music = arcade.load_sound("Data/sounds/music.wav", True)
-        self.current_song = arcade.play_sound(self.background_music, volume=self.volume, loop=True)
+        self.current_song = arcade.play_sound(self.background_music, volume=(self.volume[2] * self.volume[0]), loop=True)
         
     def on_hide_view(self):
         """Останавливаем музыку, когда уходим с экрана (например, в паузу)"""
@@ -337,11 +363,15 @@ class Game(arcade.View):
             self.current_song = None
 
 
-class Tutorial(Game):
+class Tutorial(arcade.View):
     def __init__(self, volume, menu):
-        super().__init__(volume=volume)
+        super().__init__()
+        self.menu = menu
+        self.volume = volume
         
-        player = Player(x=256, y=1024, volume=self.volume, speed=2000)
+        self.pressed_keys = set()
+        
+        player = Player(x=256, y=1024, volume=self.volume[1]*self.volume[0])
         self.player_list = arcade.SpriteList()
         self.player_list.append(player)
         
@@ -355,9 +385,17 @@ class Tutorial(Game):
         self.collision_list = self.loc_map1.sprite_lists["coll"]
         self.ground_list = self.loc_map1.sprite_lists["ground"]
         
+        self.world_camera = arcade.camera.Camera2D()
+        self.gui_camera = arcade.camera.Camera2D()
+        
         self.upgrade = 1.25
 
         self.game_globaltime = 0
+        
+        self.inventory = Inventory()
+        self.inventory_draw = arcade.SpriteList()
+        self.inventory_draw.append(self.inventory)
+        self.inventory.add_item(item.carrot_seed, 1)
         
         self.game_hours = 9   
         self.game_minutes = 0
@@ -376,9 +414,11 @@ class Tutorial(Game):
                 self.list_of_grads.append(Grad(listi))    
         
         self.shop_1 = Shop(False, True, 1, (item.carrot, item.hren, item.ginger, item.beet, item.potato, item.tomato, item.cucumber), self.loc_map1.sprite_lists["shop_point_1"]) 
-        self.shop_2 = Shop(True, False, 1, (item.carrot_seed, item.hren_seed, item.ginger_seed, item.beet_seed, item.potato, item.tomato_seed, item.cucumber_seed), self.loc_map1.sprite_lists["shop_point_2"]) 
-        self.shop_3 = Upgrader(self.upgrade, self.loc_map1.sprite_lists["shop_point_3"])
+        self.shop_2 = Shop(True, False, 1, (item.carrot_seed, item.hren_seed, item.ginger_seed, item.beet_seed, item.potato, item.tomato_seed, item.cucumber_seed), self.loc_map1.sprite_lists["shop_point_3"]) 
+        self.shop_3 = Upgrader(self.upgrade, self.loc_map1.sprite_lists["shop_point_2"])
         
+        self.batch = Batch()
+         
         self.hint_text = arcade.Text(f"""Подсказка""",
             x= self.window.width - 200,
             y = self.window.height - 30,
@@ -393,6 +433,7 @@ class Tutorial(Game):
             self.player_list[0], self.collision_list
         )
         
+
     def on_draw(self):
         self.clear()
         self.world_camera.use()
@@ -406,7 +447,7 @@ class Tutorial(Game):
         
         self.wall_list2.draw()
         
-        self.shop_list2.draw
+        self.shop_list2.draw()
         
         self.player_list.draw()
         
@@ -420,8 +461,41 @@ class Tutorial(Game):
         self.inventory.draw_items()
         
     def on_update(self, delta_time):
-        super().on_update(delta_time)
+        self.game_globaltime += delta_time
         
+        self.inventory.update(deltatime=delta_time, keys=self.pressed_keys)
+        s_i = self.inventory.inventory_list[self.inventory.selected_item]
+        
+        self.player_list[0].change_x = 0
+        self.player_list[0].change_y = 0
+        
+        if arcade.key.UP in self.pressed_keys or arcade.key.W in self.pressed_keys:
+            self.player_list[0].change_y = 200 * delta_time
+            
+        elif arcade.key.DOWN in self.pressed_keys or arcade.key.S in self.pressed_keys:
+            self.player_list[0].change_y = -200 * delta_time
+
+        if arcade.key.RIGHT in self.pressed_keys or arcade.key.D in self.pressed_keys:
+            self.player_list[0].change_x = 200 * delta_time
+            
+        elif arcade.key.LEFT in self.pressed_keys or arcade.key.A in self.pressed_keys:
+            self.player_list[0].change_x = -200 * delta_time
+        
+        self.player_list[0].update(delta_time)
+        
+        self.physics_engine.update()
+        
+        position = (
+            self.player_list[0].center_x,
+            self.player_list[0].center_y
+        )
+        
+        self.world_camera.position = arcade.math.lerp_2d(
+            self.world_camera.position,
+            position,
+            0.14,
+        ) 
+                
         for grad in self.list_of_grads:
             grad.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime, self.volume)
             grad.update_growth(delta_time=delta_time, inventory=self.inventory, upgrade=self.upgrade, volume=self.volume)
@@ -429,6 +503,47 @@ class Tutorial(Game):
         self.shop_1.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime)    
         self.shop_2.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime)
         self.shop_3.update(self.player_list[0], self.inventory, self.pressed_keys)
+        
+        self.game_seconds += delta_time * self.time_speedup
+        
+        while self.game_seconds >= 60.0:
+            self.game_seconds -= 60.0
+            self.game_minutes += 1
+            
+        while self.game_minutes >= 60:
+            self.game_minutes -= 60
+            self.game_hours += 1
+
+        self.game_hours %= 24
+        
+        self.time_text = arcade.Text(f"Время: {self.game_hours:02d}:{self.game_minutes:02d}",
+        x=10,
+        y=self.window.height - 30,
+        color=arcade.color.WHITE,
+        font_size=20,
+        bold=True,
+        batch=self.batch)
+        
+        if s_i[0]:
+            self.item_text = arcade.Text(f"""Выбранный предмет:\n{s_i[0].name}\nКол-во: {s_i[1]}\nЦена: {s_i[0].price}""",
+            x=10,
+            y=self.window.height - 50,
+            color=arcade.color.WHITE,
+            font_size=20,
+            bold=True,
+            width=300,
+            multiline=True,
+            batch=self.batch)
+        else:
+            self.item_text = arcade.Text(f"""Выбранный предмет:\nНет""",
+            x=10,
+            y=self.window.height - 50,
+            color=arcade.color.WHITE,
+            font_size=20,
+            bold=True,
+            width=300,
+            multiline=True,
+            batch=self.batch)
         
         for tile in self.loc_map1.sprite_lists["text_1"]:
             if arcade.check_for_collision(self.player_list[0], tile):
@@ -469,10 +584,23 @@ class Tutorial(Game):
                
     def on_key_press(self, key, modifiers):  
         if key == arcade.key.ESCAPE:
-            self.window.show_view(self)
+            self.menu.manager.enable()
+            self.window.show_view(self.menu)
         if key not in self.pressed_keys:
             self.pressed_keys.add(key)
     
     def on_key_release(self, key, modifiers):
         if key in self.pressed_keys:
             self.pressed_keys.remove(key)
+            
+    def on_show_view(self):
+        """Вызывается, когда вид показывается (например, при переходе)"""
+        # Загружаем и запускаем музыку
+        self.background_music = arcade.load_sound("Data/sounds/music.wav", True)
+        self.current_song = arcade.play_sound(self.background_music, volume=(self.volume[2] * self.volume[0]), loop=True)
+        
+    def on_hide_view(self):
+        """Останавливаем музыку, когда уходим с экрана (например, в паузу)"""
+        if self.current_song:
+            arcade.stop_sound(self.current_song)
+            self.current_song = None
