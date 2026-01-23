@@ -149,7 +149,7 @@ class Game(arcade.View):
         
         self.shop_1 = Shop(False, True, 1, (item.carrot, item.hren, item.ginger, item.beet, item.potato, item.tomato, item.cucumber), self.loc_map1.sprite_lists["shop_point_1"]) 
         self.shop_2 = Shop(True, False, 1, (item.carrot_seed, item.hren_seed, item.ginger_seed, item.beet_seed, item.potato, item.tomato_seed, item.cucumber_seed), self.loc_map1.sprite_lists["shop_point_2"]) 
-        self.shop_3 = Upgrader(self.upgrade, self.loc_map1.sprite_lists["shop_point_3"])             
+        self.shop_3 = Upgrader(self.loc_map1.sprite_lists["shop_point_3"])             
         
         self.inventory = Inventory()
         self.inventory_draw = arcade.SpriteList()
@@ -241,12 +241,13 @@ class Game(arcade.View):
         ) 
                 
         for grad in self.list_of_grads:
-            grad.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime, self.volume)
-            grad.update_growth(delta_time=delta_time, inventory=self.inventory, upgrade=self.upgrade, volume=self.volume)
+            grad.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime, self.volume[1] * self.volume[0])
+            if grad.active and grad.vegetable:
+                grad.update_growth(delta_time=delta_time, inventory=self.inventory, upgrade=self.upgrade, volume=self.volume[1] * self.volume[0])
         
         self.shop_1.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime)    
         self.shop_2.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime)
-        self.shop_3.update(self.player_list[0], self.inventory, self.pressed_keys)
+        self.upgrade = self.shop_3.update(self.player_list[0], self.inventory, self.pressed_keys, self.upgrade)
         
         self.game_seconds += delta_time * self.time_speedup
         
@@ -311,7 +312,7 @@ class Game(arcade.View):
         
         for tile in self.loc_map1.sprite_lists["text_shop_3"]:
             if arcade.check_for_collision(self.player_list[0], tile):
-                self.hint_text.text = f"""Купить Улучшение:\nЦена: {self.shop_3.cost}\nЭффективность: {self.shop_3.upgrade + 0.25}"""
+                self.hint_text.text = f"""Купить Улучшение:\nЦена: {self.shop_3.cost}\nЭффективность: {self.upgrade + 0.25}"""
 
                 
 
@@ -415,7 +416,7 @@ class Tutorial(arcade.View):
         
         self.shop_1 = Shop(False, True, 1, (item.carrot, item.hren, item.ginger, item.beet, item.potato, item.tomato, item.cucumber), self.loc_map1.sprite_lists["shop_point_1"]) 
         self.shop_2 = Shop(True, False, 1, (item.carrot_seed, item.hren_seed, item.ginger_seed, item.beet_seed, item.potato, item.tomato_seed, item.cucumber_seed), self.loc_map1.sprite_lists["shop_point_3"]) 
-        self.shop_3 = Upgrader(self.upgrade, self.loc_map1.sprite_lists["shop_point_2"])
+        self.shop_3 = Upgrader(self.loc_map1.sprite_lists["shop_point_2"])
         
         self.batch = Batch()
          
@@ -497,12 +498,12 @@ class Tutorial(arcade.View):
         ) 
                 
         for grad in self.list_of_grads:
-            grad.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime, self.volume)
+            grad.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime, self.volume[1] * self.volume[0])
             grad.update_growth(delta_time=delta_time, inventory=self.inventory, upgrade=self.upgrade, volume=self.volume)
         
         self.shop_1.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime)    
         self.shop_2.update(self.player_list[0], self.inventory, self.pressed_keys, self.game_globaltime)
-        self.shop_3.update(self.player_list[0], self.inventory, self.pressed_keys)
+        self.upgrade = self.shop_3.update(self.player_list[0], self.inventory, self.pressed_keys, self.upgrade)
         
         self.game_seconds += delta_time * self.time_speedup
         
