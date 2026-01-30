@@ -5,8 +5,9 @@ import json
 file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
 import main_menu
+import window
 
-window = arcade.Window(800, 600, "py-valley")
+window = window.Window(800, 600, "py-valley", full_screen=False)
 
 volume_all = [1, 1, 1]
 volume_of_master = volume_all[0]

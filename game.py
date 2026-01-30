@@ -125,9 +125,6 @@ class Game(arcade.View):
         self.world_camera = arcade.camera.Camera2D()
         self.gui_camera = arcade.camera.Camera2D()
         
-        self.world_width = 800
-        self.world_height = 600
-        
         # Карта
         self.location1 = f"{data}Map/valley.tmx"
         self.loc_map1 = arcade.load_tilemap(self.location1, scaling=1)
@@ -312,17 +309,17 @@ class Game(arcade.View):
         if s_i[0] and s_i[0].price:
             self.item_text = arcade.Text(f"""Выбранный предмет:\n{s_i[0].name}\nКол-во: {s_i[1]}\nЦена: {s_i[0].price}""",
             x=10,
-            y=self.window.height - 70,
+            y=self.window.height - 90,
             color=arcade.color.WHITE,
             font_size=20,
             bold=True,
             width=300,
             multiline=True,
             batch=self.batch)
-        elif not s_i[0].price:
+        elif s_i[0] and not s_i[0].price:
             self.item_text = arcade.Text(f"""Выбранный предмет:\n{s_i[0].name}\nКол-во: {s_i[1]}""",
             x=10,
-            y=self.window.height - 70,
+            y=self.window.height - 90,
             color=arcade.color.WHITE,
             font_size=20,
             bold=True,
@@ -332,7 +329,7 @@ class Game(arcade.View):
         else:
             self.item_text = arcade.Text(f"""Выбранный предмет:\nНет""",
             x=10,
-            y=self.window.height - 70,
+            y=self.window.height - 90,
             color=arcade.color.WHITE,
             font_size=20,
             bold=True,
@@ -418,6 +415,19 @@ class Game(arcade.View):
         if self.current_song:
             arcade.stop_sound(self.current_song)
             self.current_song = None
+    
+    def on_resize(self, width: int, height: int):
+        """Обновляет камеру при изменении размера окна."""
+        super().on_resize(width, height)
+
+        self.world_camera = arcade.camera.Camera2D()
+        self.gui_camera = arcade.camera.Camera2D()
+        # Обновляем GUI-камеру
+        self.gui_camera.use()
+        self.gui_camera.match_window()
+    
+        # Возвращаемся к игровой камере
+        self.world_camera.use()
 
 
 class Tutorial(arcade.View):
@@ -590,7 +600,7 @@ class Tutorial(arcade.View):
             width=300,
             multiline=True,
             batch=self.batch)
-        elif not s_i[0].price:
+        elif s_i[0] and not s_i[0].price:
             self.item_text = arcade.Text(f"""Выбранный предмет:\n{s_i[0].name}\nКол-во: {s_i[1]}""",
             x=10,
             y=self.window.height - 70,
@@ -603,7 +613,7 @@ class Tutorial(arcade.View):
         else:
             self.item_text = arcade.Text(f"""Выбранный предмет:\nНет""",
             x=10,
-            y=self.window.height - 50,
+            y=self.window.height - 70,
             color=arcade.color.WHITE,
             font_size=20,
             bold=True,
@@ -670,3 +680,15 @@ class Tutorial(arcade.View):
         if self.current_song:
             arcade.stop_sound(self.current_song)
             self.current_song = None
+
+    def on_resize(self, width: int, height: int):
+        """Обновляет камеру при изменении размера окна."""
+        super().on_resize(width, height)
+        self.world_camera = arcade.camera.Camera2D()
+        self.gui_camera = arcade.camera.Camera2D()
+        # Обновляем GUI-камеру
+        self.gui_camera.use()
+        self.gui_camera.match_window()
+    
+        # Возвращаемся к игровой камере
+        self.world_camera.use()
