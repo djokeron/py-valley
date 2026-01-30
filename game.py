@@ -186,14 +186,15 @@ class Game(arcade.View):
             self.game_day = loaded_data[5]
             
             self.upgrade = loaded_data[6]
+            self.shop_3.cost = loaded_data[7]
             
             # Загрузка предметов
-            for items in loaded_data[7]:
+            for items in loaded_data[8]:
                 self.inventory.add_item(item.item_dict[items[0]], items[1])
             
             # Загрузка состояния грядок
             lof = self.list_of_grads
-            for num, grad in enumerate(loaded_data[8]):
+            for num, grad in enumerate(loaded_data[9]):
                 lof[num].active = grad[0]
                 lof[num].vegetable = grad[1]
                 lof[num].washed = grad[2]
@@ -391,6 +392,7 @@ class Game(arcade.View):
             self.game_globaltime,
             self.game_day,
             self.upgrade,
+            self.shop_3.cost,
             saving_inv,
             saving_grads)
             
