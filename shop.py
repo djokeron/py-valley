@@ -47,7 +47,7 @@ class Shop:
                     if time - self.cooldowns[key] < self.cooldown_time:
                         continue  # На перезарядке
 
-                    if s_i[0] == shop_item and s_i[1] == self.amount:
+                    if s_i[0] == shop_item and s_i[1] >= self.amount:
                         # Добавляем монеты, удаляем предмет
                         inventory.add_item(item.coin, shop_item.price)
                         inventory.del_item(inventory.selected_item, self.amount)
@@ -65,7 +65,7 @@ class Shop:
                         if time - self.cooldowns[key] < self.cooldown_time:
                             continue
 
-                        if s_i[0] == item.coin and s_i[1] == shop_item.price:
+                        if s_i[0] == item.coin and s_i[1] >= shop_item.price:
                             # Продаём shop_item за монеты
                             inventory.add_item(shop_item, self.amount)
                             inventory.del_item(inventory.selected_item, shop_item.price)
