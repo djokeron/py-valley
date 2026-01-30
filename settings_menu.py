@@ -7,6 +7,7 @@ data = "Data/"
 
 
 class SettingsMenu(arcade.View):
+    """Меню настроек"""
     def __init__(self, volume=[1, 1, 1]):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
@@ -57,6 +58,7 @@ class SettingsMenu(arcade.View):
         Music_slider.on_change = lambda event: self.change_volume(Music_slider.value, "music")
     
     def change_volume(self, value, sound="master"):
+        """Сохранение данных о громкости"""
         if sound == "master":
             self.volume[0] = value / 100
         elif sound == "sounds":

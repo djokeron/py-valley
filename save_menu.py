@@ -6,6 +6,7 @@ from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout
 data = "Data/"
 
 class SaveMenu(arcade.View):
+    "Меню сохранения"
     def __init__(self, game_state, volume):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
@@ -77,6 +78,7 @@ class SaveMenu(arcade.View):
         file3_button.on_click = lambda event: self.save_data(3)
     
     def save_data(self, number_of_save):
+        """Сохранение данных в файл json"""
         with open(f"{data}Saved/save{number_of_save}.json", "w") as save:
             json.dump(self.game.save_data, save)
     

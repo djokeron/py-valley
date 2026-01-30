@@ -3,11 +3,15 @@ import item
 import arcade
 
 class Upgrader():
+    """Магазин улучшения"""
     def __init__(self, area):
         self.cost = 10
         self.area = area
+        self.cooldown_time = 0.5
+        self.cooldown = 0
         
-    def update(self, player, inventory: Inventory, keys, upgrade_value: float):
+    def update(self, player, inventory: Inventory, keys, upgrade_value: float, time):
+        """Логика схожая с обычным магазином"""
         s_i = inventory.inventory_list[inventory.selected_item]
         upgrade = upgrade_value
         
@@ -18,13 +22,18 @@ class Upgrader():
         if arcade.key.E not in keys:
             return upgrade
         
+        if time - self.cooldown < self.cooldown_time:
+            return upgrade
+        
         if s_i[0] == item.coin and s_i[1] >= self.cost:
             inventory.del_item(inventory.selected_item, self.cost)
-            
+
             upgrade += 0.25
             
             if self.cost % 2:
                 self.cost *= 2
             else:
                 self.cost += 5
+            
+            self.cooldown = time
         return upgrade

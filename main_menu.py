@@ -8,6 +8,7 @@ data = "Data/"
 
 
 class MainMenu(arcade.View):
+    """Главное меню"""
     def __init__(self, volume):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
@@ -62,6 +63,7 @@ class MainMenu(arcade.View):
         self.box_layout.add(Settings_button)
 
         def to_scene(view):
+            """Переход на другую сцену"""
             self.manager.disable()
             self.window.show_view(view)
         

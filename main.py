@@ -12,6 +12,8 @@ volume_all = [1, 1, 1]
 volume_of_master = volume_all[0]
 volume_of_sounds = volume_all[1]
 volume_of_music = volume_all[2]
+
+# загрузка настроек
 if os.path.exists("Data/settings.json"):
     with open("Data/settings.json", "r") as s: 
         volume_all = json.load(s)

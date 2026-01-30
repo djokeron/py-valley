@@ -7,6 +7,7 @@ from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout
 data = "Data/"
 
 class LoadMenu(arcade.View):
+    """Меню Загрузки"""
     def __init__(self, game_state, back_menu, volume):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
@@ -27,6 +28,7 @@ class LoadMenu(arcade.View):
         self.manager.add(self.anchor_layout) 
 
     def setup_widgets(self):
+        """Элементы UI"""
         file1_normal = arcade.load_texture(f"{data}Images/Buttons/file1_none.png")
         file1_hovered = arcade.load_texture(f"{data}Images/Buttons/file1_none_hovered.png")
         file1_pressed = arcade.load_texture(f"{data}Images/Buttons/file1_none_pressed.png")
@@ -84,6 +86,7 @@ class LoadMenu(arcade.View):
             file3_button.on_click = lambda event: self.load_data(3)
     
     def load_data(self, number_of_save):
+        """Загрузка игры с загруженными данными из сохранения"""
         with open(f"{data}Saved/save{number_of_save}.json", "r") as save:
             self.loaded_data = json.load(save)
         self.window.show_view(game.Game(self.loaded_data))

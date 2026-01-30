@@ -7,6 +7,7 @@ from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout
 data = "Data/"
 
 class PauseMenu(arcade.View):
+    """Меню паузы"""
     def __init__(self, game_state, volume):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
@@ -51,6 +52,7 @@ class PauseMenu(arcade.View):
         self.box_layout.add(Save_button)
         self.box_layout.add(Load_button)
         def to_scene(view):
+            "Так же как и в главном меню"
             self.manager.disable()
             self.window.show_view(view)
             

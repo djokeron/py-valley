@@ -2,14 +2,21 @@ import arcade
 import item
 
 class Inventory(arcade.Sprite):
+    """Инвентарь игрока"""
     def __init__(self, x=400, y=32):
         super().__init__(center_x=x, center_y=y, scale=1)
-        self.inventory_list = [[None, 0] for _ in range(9)] 
+        
+        # Список инвентаря [Предмет, Кол-во]
+        self.inventory_list = [[None, 0] for _ in range(9)]
+        
+        # Загрузка текстур
         self.inventory_textures = [arcade.load_texture(f"Data/Images/inventory/inventory{i}.png") for i in range(1, 10)]
-        self.selected_item = 0
+        
+        self.selected_item = 0 # Выбраный предмет номер его ячейки
         self.texture = self.inventory_textures[self.selected_item]
     
     def merge_items(self):
+        """Объединение одинаковых предметов"""
         items_count = {}
         for slot in self.inventory_list:
             item_obj, count = slot
@@ -30,6 +37,7 @@ class Inventory(arcade.Sprite):
             item_obj.center_y = self.center_y
         
     def add_item(self, item_obj: item.Item, amount=1):
+        "Добавление предмета"
         for i, (existing_item, count) in enumerate(self.inventory_list):
             if existing_item == item_obj:
                 self.inventory_list[i][1] += amount
@@ -45,6 +53,7 @@ class Inventory(arcade.Sprite):
                 return
     
     def del_item(self, cell=0, amount=1):
+        """Удаление предмета"""
         if cell < 0 or cell >= len(self.inventory_list):
             return
 
@@ -57,9 +66,11 @@ class Inventory(arcade.Sprite):
                 self.inventory_list[cell][1] = new_count
     
     def clear_cell(self, cell=0):
+        """Очистка ячейки"""
         self.inventory_list[cell] = [None, 0]
         
     def draw_items(self):
+        """Отрисовка предметов"""
         items_to_draw = arcade.SpriteList()
         for slot in self.inventory_list:
             item_obj, count = slot
@@ -69,6 +80,7 @@ class Inventory(arcade.Sprite):
 
         
     def update(self, deltatime, keys):
+        """Обнавление текстуры инвентаря"""
         if arcade.key.KEY_1 in keys:
             self.selected_item = 0
         elif arcade.key.KEY_2 in keys:
